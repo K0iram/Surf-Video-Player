@@ -8,7 +8,7 @@ class Body extends Component {
   render() {
     return (
       <div className="container">
-     		The body goes here!
+     		<h1>The body goes here!</h1>
       </div>
     )
   }
