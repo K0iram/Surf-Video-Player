@@ -8,7 +8,7 @@ class Navigation extends Component {
   render() {
     return (
       <div className="nav-container">
-      This is a nav bar
+      	<h1>Surf San Diego</h1>
       </div>
     )
   }
