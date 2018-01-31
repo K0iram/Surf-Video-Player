@@ -6,15 +6,13 @@ import './App.css';
 
 class App extends Component {
 
-
-
     render() {
       return (
           <div className="App">
-          <Navigation />
-          <div className="main-content">
-            <Body />
-          </div>
+            <Navigation />
+            <div className="main-content">
+              <Body />
+            </div>
           </div>
       );
     }

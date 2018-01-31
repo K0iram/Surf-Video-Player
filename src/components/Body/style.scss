@@ -1,11 +1,8 @@
 .btn-container {
-	max-width: 920px;
-	width: 100%;
-	margin: 0 auto;
-
-	& .prev-btn {
-		margin-right: 50px;
-	}
+	display: flex;
+	justify-content: space-around;
+	height: 20px;
+	margin: 35px;
 }
 
 .preview-container {

@@ -12,7 +12,8 @@ class Body extends Component {
     videoInfo: [],
     nextPageToken: '',
     prevPageToken: '',
-    maxResults: 20
+    maxResults: 20,
+    pageNumber: 1
   }
 
 	componentDidMount() {
@@ -33,7 +34,8 @@ class Body extends Component {
 				this.setState({ 
 					videoInfo: res.data.items,
 					nextPageToken: res.data.nextPageToken || null,
-					prevPageToken: res.data.prevPageToken || null
+					prevPageToken: res.data.prevPageToken || null,
+					pageNumber: this.state.pageNumber + 1
 				})
 				window.scrollTo(0, 0);
 			})
@@ -49,9 +51,9 @@ class Body extends Component {
 				this.setState({ 
 					videoInfo: res.data.items,
 					nextPageToken: res.data.nextPageToken,
-					prevPageToken: res.data.prevPageToken
+					prevPageToken: res.data.prevPageToken,
+					pageNumber: this.state.pageNumber - 1
 				})
-				window.scrollTo(0, 0);
 			})
 			.catch((err) => {
 				console.error(err)
@@ -65,8 +67,9 @@ class Body extends Component {
       		{this.state.videoInfo.map((video, i) => <VideoPreview {...video} key={i}/>)}
       	</div>
       	<div className="btn-container">
-		      	<button className='prev-btn' onClick={this.getPrev}>Prev</button>
-		      	<button onClick={this.getNext}>Next</button>
+		      	<button onClick={this.getPrev} disabled={!this.state.prevPageToken}>Previous</button>
+		      	<p>Page: {this.state.pageNumber}</p>
+		      	<button onClick={this.getNext} disabled={!this.state.nextPageToken}>Next</button>
       	</div>
     	</div>
     );
