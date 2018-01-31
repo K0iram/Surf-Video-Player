@@ -1,67 +1,73 @@
 import React, {Component} from 'react'
-import moment from 'moment'
+import API from '../../API'
+
+import VideoPreview from '../Preview'
 
 
 import './style.css'
-
-const API = 'AIzaSyBeimXtjgzfQcogY-fP8_CHPybmLpFaieo'
-const channelID = 'UCEUdKX-Okq_HhKV--7uuZnA'
-const maxResults = 50
-
-let URL = `https://www.googleapis.com/youtube/v3/search?key=${API}&channelId=${channelID}&part=snippet,id&order=date&maxResults=${maxResults}`
 
 class Body extends Component {
 
 	state = {
     videoInfo: [],
-    videoUrl: []
+    nextPageToken: '',
+    prevPageToken: '',
+    maxResults: 20
   }
 
 	componentDidMount() {
-	  fetch(URL)
-	    .then((response) => response.json())
-	    .then((responseJson) => {
-	      const info = responseJson.items.map(obj => obj.snippet);
-	      const urls = responseJson.items.map(obj => "https://www.youtube.com/watch?v="+obj.id.videoId);
-	      	this.setState({
-	      	videoInfo: info,
-	      	videoUrl: urls
-	      	})
-	      	console.log(info)
-	    })
-	    .catch((error) => {
-	      console.error(error);
-	    })
+		const { maxResults } = this.state
+	  API.fetchVideos(maxResults)
+	  	.then((res) => {
+	  		this.setState({ 
+	  			videoInfo: res.data.items,
+					nextPageToken: res.data.nextPageToken
+	  		})
+	  	})
 	}
 
+	getNext = () => {
+		const {nextPageToken, maxResults} = this.state
+		API.paginateVideos(nextPageToken, maxResults)
+			.then((res) => {
+				this.setState({ 
+					videoInfo: res.data.items,
+					nextPageToken: res.data.nextPageToken || null,
+					prevPageToken: res.data.prevPageToken || null
+				})
+				window.scrollTo(0, 0);
+			})
+			.catch((err) => {
+				console.error(err)
+			})
+	}
+	
+	getPrev = () => {
+		const {prevPageToken, maxResults} = this.state
+		API.paginateVideos(prevPageToken, maxResults)
+			.then((res) => {
+				this.setState({ 
+					videoInfo: res.data.items,
+					nextPageToken: res.data.nextPageToken,
+					prevPageToken: res.data.prevPageToken
+				})
+				window.scrollTo(0, 0);
+			})
+			.catch((err) => {
+				console.error(err)
+			})
+	}
 
   render(){
     return(
       <div className="video-container">
-        {
-          this.state.videoInfo.map((video, i) => {
-            let videoImg = video.thumbnails.medium.url
-            let videoName = video.title
-            let videoDate = moment(video.publishedAt).startOf('day').fromNow(); 
-            let videoLink = this.state.videoUrl.map((url) => {
-            	return url
-            })
-
-            let youtubeVideo = 
-              <div className="youtube-container" key={i}>
-            		<a href={videoLink} target="_blank">
-              		<img src={videoImg} alt="video thumbnail" className="youtube"/>
-              		<div className="description">
-                		<p className='youtube-title'>{videoName}</p>
-                		<p className='youtube-date'>{videoDate}</p>
-              		</div>
-            		</a>
-              </div>
-
-            return youtubeVideo;
-          })
-        }
-      	{this.youtubeVideo}
+      	<div className="preview-container">
+      		{this.state.videoInfo.map((video, i) => <VideoPreview {...video} key={i}/>)}
+      	</div>
+      	<div className="btn-container">
+		      	<button className='prev-btn' onClick={this.getPrev}>Prev</button>
+		      	<button onClick={this.getNext}>Next</button>
+      	</div>
     	</div>
     );
   }
