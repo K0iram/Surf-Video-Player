@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Navigation from '../../components/Navigation'
 import Body from '../../components/Body'
 
+import '../../css/skeleton.css'
 import './App.css';
 
 class App extends Component {

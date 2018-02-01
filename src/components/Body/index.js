@@ -10,6 +10,7 @@ class Body extends Component {
 
 	state = {
     videoInfo: [],
+    pageInfo: [],
     nextPageToken: '',
     prevPageToken: '',
     maxResults: 20,
@@ -17,11 +18,16 @@ class Body extends Component {
   }
 
 	componentDidMount() {
+		this.fetchVideos()
+	}
+
+	fetchVideos = () => {
 		const { maxResults } = this.state
 	  API.fetchVideos(maxResults)
 	  	.then((res) => {
 	  		this.setState({ 
 	  			videoInfo: res.data.items,
+	  			pageInfo: res.data.pageInfo.totalResults,
 					nextPageToken: res.data.nextPageToken
 	  		})
 	  	})
@@ -60,6 +66,17 @@ class Body extends Component {
 			})
 	}
 
+	pageAmount = () => {
+		let totalResults = this.state.pageInfo
+		let pageTotal = totalResults/this.state.maxResults
+		return Math.floor(pageTotal)
+	}
+
+	onSelectMax = event => {
+		this.setState({maxResults: event.target.value})
+		this.fetchVideos()
+	}
+
   render(){
     return(
       <div className="video-container">
@@ -68,7 +85,18 @@ class Body extends Component {
       	</div>
       	<div className="btn-container">
 		      	<button onClick={this.getPrev} disabled={!this.state.prevPageToken}>Previous</button>
-		      	<p>Page: {this.state.pageNumber}</p>
+		      	<div className="page-info">
+			      	<p>Page: {this.state.pageNumber} / {this.pageAmount()}</p> 
+			      	<div className="page-info__select">
+				      	<p>Videos Per Page:</p>
+				      	<select value={this.state.maxResults} onChange={this.onSelectMax}>
+				      	  <option value="20" default>20</option>
+				      	  <option value="30">30</option>
+				      	  <option value="40">40</option>
+				      	  <option value="50">50</option>
+				      	</select>
+			      	</div>
+		      	</div>
 		      	<button onClick={this.getNext} disabled={!this.state.nextPageToken}>Next</button>
       	</div>
     	</div>
