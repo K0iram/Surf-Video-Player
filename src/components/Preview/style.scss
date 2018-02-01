@@ -4,6 +4,10 @@
 	width: 350px;
 	margin: 5px;
 
+	&:hover {
+		transform: scale(1.02);
+	}
+
 	&__description {
 		text-align: left;
 		margin: 10px;
