@@ -1,16 +1,11 @@
 import axios from 'axios'
-const API = {}
+import { API_BASE, API_KEY } from '../constants'
 
-const apiKey = 'AIzaSyBeimXtjgzfQcogY-fP8_CHPybmLpFaieo'
-const channelID = 'UCEUdKX-Okq_HhKV--7uuZnA'
-
-
-API.fetchVideos = (maxResults) => {
-  return axios.get(`https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelID}&part=snippet,id&order=date&maxResults=${maxResults}`)
+const DEFAULT_OPTIONS = {
+  key: API_KEY
 }
 
-API.paginateVideos = (pageToken, maxResults) => {
-  return axios.get(`https://www.googleapis.com/youtube/v3/search?pageToken=${pageToken}&key=${apiKey}&channelId=${channelID}&part=snippet,id&order=date&maxResults=${maxResults}`)
-}
-
-export default API
+export const YouTubeAPI = axios.create({
+  baseURL: API_BASE,
+  params: DEFAULT_OPTIONS
+})

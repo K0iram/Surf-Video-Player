@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import API from '../../API'
+import { searchVideos } from '../../api/youtube'
 
 import VideoPreview from '../Preview'
 
@@ -14,57 +14,63 @@ class Body extends Component {
     nextPageToken: '',
     prevPageToken: '',
     maxResults: 20,
-    pageNumber: 1
+    pageNumber: 1,
+    query: ''
   }
 
-	componentDidMount() {
-		this.fetchVideos()
-	}
 
-	fetchVideos = () => {
-		const { maxResults } = this.state
-	  API.fetchVideos(maxResults)
-	  	.then((res) => {
-	  		this.setState({ 
-	  			videoInfo: res.data.items,
-	  			pageInfo: res.data.pageInfo.totalResults,
-					nextPageToken: res.data.nextPageToken
-	  		})
-	  	})
-	}
+  getVideos = (results, place) => {
+    const { maxResults, query } = this.state
+    let q = "surfing in " + query
 
-	getNext = () => {
-		const {nextPageToken, maxResults} = this.state
-		API.paginateVideos(nextPageToken, maxResults)
-			.then((res) => {
-				this.setState({ 
-					videoInfo: res.data.items,
-					nextPageToken: res.data.nextPageToken || null,
-					prevPageToken: res.data.prevPageToken || null,
-					pageNumber: this.state.pageNumber + 1
-				})
-				window.scrollTo(0, 0);
-			})
-			.catch((err) => {
-				console.error(err)
-			})
-	}
-	
-	getPrev = () => {
-		const {prevPageToken, maxResults} = this.state
-		API.paginateVideos(prevPageToken, maxResults)
-			.then((res) => {
-				this.setState({ 
-					videoInfo: res.data.items,
-					nextPageToken: res.data.nextPageToken,
-					prevPageToken: res.data.prevPageToken,
-					pageNumber: this.state.pageNumber - 1
-				})
-			})
-			.catch((err) => {
-				console.error(err)
-			})
-	}
+    searchVideos({ maxResults, q })
+      .then(this.receiveVideos)
+      .then(
+        this.setState({
+          pageNumber: 1,
+          query: ''
+        })
+      )
+  }
+
+  receiveVideos = ({ data }) => {
+    const { nextPageToken, prevPageToken, pageInfo, items } = data
+
+    this.setState({
+      videoInfo: data.items,
+      pageInfo: data.pageInfo.totalResults,
+      nextPageToken: data.nextPageToken || null,
+      prevPageToken: data.prevPageToken || null
+    })
+  }
+
+  inputChange = (e) => {
+    this.setState({
+      query: e.target.value,
+    })
+  }
+
+  nextPage = () => {
+    const { maxResults, query, nextPageToken} = this.state
+    let pageToken = nextPageToken
+    let q = "surfing in " + query
+
+    searchVideos({pageToken, q, maxResults})
+      .then(this.receiveVideos)
+      .then(this.setState({ pageNumber: this.state.pageNumber + 1 }))
+      .then(window.scrollTo(0, 0))
+  }
+
+  lastPage = () => {
+    const { maxResults, query, prevPageToken} = this.state
+    let pageToken = prevPageToken
+    let q = "surfing in " + query
+
+    searchVideos({pageToken, query, maxResults})
+      .then(this.receiveVideos)
+      .then(this.setState({ pageNumber: this.state.pageNumber - 1 }))
+      .then(window.scrollTo(0, 0))
+  }
 
 	pageAmount = () => {
 		let totalResults = this.state.pageInfo
@@ -74,32 +80,38 @@ class Body extends Component {
 
 	onSelectMax = event => {
 		this.setState({maxResults: event.target.value})
-		this.fetchVideos()
+		.then(this.getVideos)
 	}
 
   render(){
+    const {query, videoInfo, pageNumber, prevPageToken, nextPageToken, maxResults} = this.state
     return(
-      <div className="video-container">
-      	<div className="preview-container">
-      		{this.state.videoInfo.map((video, i) => <VideoPreview {...video} key={i}/>)}
+      <div className="container">
+        <p>Pick a place to check out the surf videos!</p>
+        <input type="text" placeholder="Surf Destination" onChange={this.inputChange} value={query}/>
+        <button onClick={this.getVideos} disabled={!query}>Submit</button>
+        <div className="video-container">
+        	<div className="preview-container">
+        		{videoInfo.map((video, i) => <VideoPreview {...video} key={i}/>)}
+        	</div>
+        	<div className="btn-container">
+  		      	<button onClick={this.lastPage} disabled={!prevPageToken}>Previous</button>
+  		      	<div className="page-info">
+  			      	<p>Page: {pageNumber} / {this.pageAmount()}</p>
+  			      	<div className="page-info__select">
+  				      	<p>Videos Per Page:</p>
+  				      	<select value={maxResults} onChange={this.onSelectMax}>
+  				      	  <option value="20" default>20</option>
+  				      	  <option value="30">30</option>
+  				      	  <option value="40">40</option>
+  				      	  <option value="50">50</option>
+  				      	</select>
+  			      	</div>
+  		      	</div>
+  		      	<button onClick={this.nextPage} disabled={!nextPageToken}>Next</button>
+        	</div>
       	</div>
-      	<div className="btn-container">
-		      	<button onClick={this.getPrev} disabled={!this.state.prevPageToken}>Previous</button>
-		      	<div className="page-info">
-			      	<p>Page: {this.state.pageNumber} / {this.pageAmount()}</p> 
-			      	<div className="page-info__select">
-				      	<p>Videos Per Page:</p>
-				      	<select value={this.state.maxResults} onChange={this.onSelectMax}>
-				      	  <option value="20" default>20</option>
-				      	  <option value="30">30</option>
-				      	  <option value="40">40</option>
-				      	  <option value="50">50</option>
-				      	</select>
-			      	</div>
-		      	</div>
-		      	<button onClick={this.getNext} disabled={!this.state.nextPageToken}>Next</button>
-      	</div>
-    	</div>
+      </div>
     );
   }
 
