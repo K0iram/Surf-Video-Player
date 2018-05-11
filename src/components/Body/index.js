@@ -8,7 +8,7 @@ import './style.css'
 
 class Body extends Component {
 
-	state = {
+  state = {
     videoInfo: [],
     pageInfo: [],
     nextPageToken: '',
@@ -72,16 +72,16 @@ class Body extends Component {
       .then(window.scrollTo(0, 0))
   }
 
-	pageAmount = () => {
-		let totalResults = this.state.pageInfo
-		let pageTotal = totalResults/this.state.maxResults
-		return Math.floor(pageTotal)
-	}
+  pageAmount = () => {
+    let totalResults = this.state.pageInfo
+    let pageTotal = totalResults/this.state.maxResults
+    return Math.floor(pageTotal)
+  }
 
-	onSelectMax = event => {
-		this.setState({maxResults: event.target.value})
-		.then(this.getVideos)
-	}
+  onSelectMax = event => {
+    this.setState({maxResults: event.target.value})
+    this.getVideos()
+  }
 
   render(){
     const {query, videoInfo, pageNumber, prevPageToken, nextPageToken, maxResults} = this.state
@@ -91,26 +91,28 @@ class Body extends Component {
         <input type="text" placeholder="Surf Destination" onChange={this.inputChange} value={query}/>
         <button onClick={this.getVideos} disabled={!query}>Submit</button>
         <div className="video-container">
-        	<div className="preview-container">
-        		{videoInfo.map((video, i) => <VideoPreview {...video} key={i}/>)}
-        	</div>
-        	<div className="btn-container">
-  		      	<button onClick={this.lastPage} disabled={!prevPageToken}>Previous</button>
-  		      	<div className="page-info">
-  			      	<p>Page: {pageNumber} / {this.pageAmount()}</p>
-  			      	<div className="page-info__select">
-  				      	<p>Videos Per Page:</p>
-  				      	<select value={maxResults} onChange={this.onSelectMax}>
-  				      	  <option value="20" default>20</option>
-  				      	  <option value="30">30</option>
-  				      	  <option value="40">40</option>
-  				      	  <option value="50">50</option>
-  				      	</select>
-  			      	</div>
-  		      	</div>
-  		      	<button onClick={this.nextPage} disabled={!nextPageToken}>Next</button>
-        	</div>
-      	</div>
+          <div className="preview-container">
+            {videoInfo.map((video, i) => <VideoPreview {...video} key={i}/>)}
+          </div>
+          {!!videoInfo.length &&
+            <div className="btn-container">
+                <button onClick={this.lastPage} disabled={!prevPageToken}>Previous</button>
+                <div className="page-info">
+                  <p>Page: {pageNumber} / {this.pageAmount()}</p>
+                  <div className="page-info__select">
+                    <p>Videos Per Page:</p>
+                    <select value={maxResults} onChange={this.onSelectMax}>
+                      <option value="20" default>20</option>
+                      <option value="30">30</option>
+                      <option value="40">40</option>
+                      <option value="50">50</option>
+                    </select>
+                  </div>
+                </div>
+                <button onClick={this.nextPage} disabled={!nextPageToken}>Next</button>
+            </div>
+          }
+        </div>
       </div>
     );
   }
