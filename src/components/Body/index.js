@@ -3,6 +3,8 @@ import { searchVideos } from '../../api/youtube'
 
 import VideoPreview from '../Preview'
 
+import Autocomplete from 'react-google-autocomplete';
+
 
 import './style.css'
 
@@ -44,9 +46,9 @@ class Body extends Component {
     })
   }
 
-  inputChange = (e) => {
+  inputChange = (place) => {
     this.setState({
-      query: e.target.value,
+      query: place,
     })
   }
 
@@ -88,7 +90,15 @@ class Body extends Component {
     return(
       <div className="container">
         <p>Pick a place to check out the surf videos!</p>
-        <input type="text" placeholder="Surf Destination" onChange={this.inputChange} value={query}/>
+        <Autocomplete
+          className="effect-1"
+          placeholder="Surf Destination"
+          types={['(regions)']}
+          onPlaceSelected={(place) => {
+            this.inputChange(place.name)
+            console.log(place)
+          }}
+        />
         <button onClick={this.getVideos} disabled={!query}>Submit</button>
         <div className="video-container">
           <div className="preview-container">

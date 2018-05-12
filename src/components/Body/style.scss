@@ -28,3 +28,22 @@
     margin: 0;
   }
 }
+
+.container {
+  & input {
+    color: #333;
+    box-sizing: border-box;
+    letter-spacing: 1px;
+    width: 200px;
+  }
+
+  & input:focus {
+    outline: none;
+  }
+}
+
+.effect-1 {
+  border: 0;
+  padding: 7px 0;
+  border-bottom: 1px solid #ccc;
+}
