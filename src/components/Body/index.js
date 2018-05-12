@@ -29,8 +29,7 @@ class Body extends Component {
       .then(this.receiveVideos)
       .then(
         this.setState({
-          pageNumber: 1,
-          query: ''
+          pageNumber: 1
         })
       )
   }
@@ -46,10 +45,16 @@ class Body extends Component {
     })
   }
 
-  inputChange = (place) => {
+  selectPlace = (place) => {
     this.setState({
       query: place,
     })
+  }
+
+  inputChange = (e) => {
+      this.setState({
+        query: e.target.value,
+      })
   }
 
   nextPage = () => {
@@ -95,9 +100,9 @@ class Body extends Component {
           placeholder="Surf Destination"
           types={['(regions)']}
           onPlaceSelected={(place) => {
-            this.inputChange(place.name)
-            console.log(place)
+            this.selectPlace(place.name)
           }}
+          onChange={this.inputChange}
         />
         <button onClick={this.getVideos} disabled={!query}>Submit</button>
         <div className="video-container">
