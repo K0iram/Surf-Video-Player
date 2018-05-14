@@ -38,11 +38,12 @@ class Body extends Component {
     const { nextPageToken, prevPageToken, pageInfo, items } = data
 
     this.setState({
-      videoInfo: data.items,
-      pageInfo: data.pageInfo.totalResults,
-      nextPageToken: data.nextPageToken || null,
-      prevPageToken: data.prevPageToken || null
+      videoInfo: items,
+      pageInfo: pageInfo.totalResults,
+      nextPageToken: nextPageToken || null,
+      prevPageToken: prevPageToken || null
     })
+    console.log(data)
   }
 
   selectPlace = (place) => {
@@ -73,7 +74,7 @@ class Body extends Component {
     let pageToken = prevPageToken
     let q = "surfing in " + query
 
-    searchVideos({pageToken, query, maxResults})
+    searchVideos({pageToken, q, maxResults})
       .then(this.receiveVideos)
       .then(this.setState({ pageNumber: this.state.pageNumber - 1 }))
       .then(window.scrollTo(0, 0))
@@ -98,10 +99,11 @@ class Body extends Component {
         <Autocomplete
           className="effect-1"
           placeholder="Surf Destination"
-          types={['(regions)']}
           onPlaceSelected={(place) => {
             this.selectPlace(place.name)
+            console.log(place)
           }}
+          types={'geocode'}
           onChange={this.inputChange}
         />
         <button onClick={this.getVideos} disabled={!query}>Submit</button>
