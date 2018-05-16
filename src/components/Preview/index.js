@@ -4,7 +4,7 @@ import VideoModal from '../Modal'
 import './style.css'
 
 
-const VideoPreview  = ({ snippet, id }, toggleModal, modalOpen) => {
+const VideoPreview  = ({ snippet, id, toggleModal, modalOpen}) => {
   const { title, thumbnails, description } = snippet
   const { videoId } = id
 
@@ -16,7 +16,7 @@ const VideoPreview  = ({ snippet, id }, toggleModal, modalOpen) => {
       <div className="youtube-container__description">
         <p>{title}</p>
       </div>
-      <VideoModal vidUrl={`https://www.youtube.com/watch?v=${videoId}`} title={title} description={description} closeModal={toggleModal} open={modalOpen}/>
+      <VideoModal vidUrl={`https://www.youtube.com/embed/${videoId}`} videoTitle={title} description={description} closeModal={toggleModal} modalOpen={modalOpen}/>
     </div>
   )
 }

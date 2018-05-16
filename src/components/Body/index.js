@@ -1,11 +1,9 @@
 import React, {Component} from 'react'
 import { searchVideos } from '../../api/youtube'
-
+// Preview component for show results
 import VideoPreview from '../Preview'
-import VideoModal from '../Modal'
-
-import Autocomplete from 'react-google-autocomplete';
-
+// Google maps api autocomplete component
+import Autocomplete from 'react-google-autocomplete'
 
 import './style.css'
 
@@ -23,10 +21,8 @@ class Body extends Component {
   }
 
   toggleModal = () => {
-    debugger
     this.setState({modalOpen: !this.state.modalOpen})
   }
-
 
   getVideos = (results, place) => {
     const { maxResults, query } = this.state
@@ -82,9 +78,13 @@ class Body extends Component {
 
     searchVideos({pageToken, q, maxResults})
       .then(this.receiveVideos)
-      .then(this.setState({ pageNumber: this.state.pageNumber - 1 }))
-      .then(window.scrollTo(0, 0))
-  }
+      .then(() => {
+        this.setState({
+          pageNumber: this.state.pageNumber - 1
+        }, window.scrollTo(0, 0)
+        )
+      })
+    }
 
   pageAmount = () => {
     let totalResults = this.state.pageInfo
@@ -93,8 +93,7 @@ class Body extends Component {
   }
 
   onSelectMax = event => {
-    this.setState({maxResults: event.target.value})
-    this.getVideos()
+    this.setState({maxResults: event.target.value}, this.getVideos())
   }
 
   render(){
@@ -107,15 +106,14 @@ class Body extends Component {
           placeholder="Surf Destination"
           onPlaceSelected={(place) => {
             this.selectPlace(place.name)
-            console.log(place)
           }}
-          types={'geocode'}
+          types={['geocode']}
           onChange={this.inputChange}
         />
         <button onClick={this.getVideos} disabled={!query}>Submit</button>
         <div className="video-container">
           <div className="preview-container">
-            {videoInfo.map((video, i) => <VideoPreview toggleModal={this.toggleModal} {...video} key={i} modalOpen={modalOpen}/>)}
+            {videoInfo.map((video, i) => <a onClick={this.toggleModal} key={i}><VideoPreview toggleModal={this.toggleModal} {...video} modalOpen={modalOpen}/></a>)}
           </div>
           {!!videoInfo.length &&
             <div className="btn-container">
