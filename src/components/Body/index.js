@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import { searchVideos } from '../../api/youtube'
 
 import VideoPreview from '../Preview'
+import VideoModal from '../Modal'
 
 import Autocomplete from 'react-google-autocomplete';
 
@@ -17,7 +18,13 @@ class Body extends Component {
     prevPageToken: '',
     maxResults: 20,
     pageNumber: 1,
-    query: ''
+    query: '',
+    modalOpen: false
+  }
+
+  toggleModal = () => {
+    debugger
+    this.setState({modalOpen: !this.state.modalOpen})
   }
 
 
@@ -43,7 +50,6 @@ class Body extends Component {
       nextPageToken: nextPageToken || null,
       prevPageToken: prevPageToken || null
     })
-    console.log(data)
   }
 
   selectPlace = (place) => {
@@ -92,7 +98,7 @@ class Body extends Component {
   }
 
   render(){
-    const {query, videoInfo, pageNumber, prevPageToken, nextPageToken, maxResults} = this.state
+    const {query, videoInfo, pageNumber, prevPageToken, nextPageToken, maxResults, modalOpen} = this.state
     return(
       <div className="container">
         <p>Pick a place to check out the surf videos!</p>
@@ -109,7 +115,7 @@ class Body extends Component {
         <button onClick={this.getVideos} disabled={!query}>Submit</button>
         <div className="video-container">
           <div className="preview-container">
-            {videoInfo.map((video, i) => <VideoPreview {...video} key={i}/>)}
+            {videoInfo.map((video, i) => <VideoPreview toggleModal={this.toggleModal} {...video} key={i} modalOpen={modalOpen}/>)}
           </div>
           {!!videoInfo.length &&
             <div className="btn-container">
