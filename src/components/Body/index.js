@@ -4,6 +4,7 @@ import { searchVideos } from '../../api/youtube'
 import VideoPreview from '../Preview'
 // Google maps api autocomplete component
 import Autocomplete from 'react-google-autocomplete'
+import VideoModal from '../Modal'
 
 import './style.css'
 
@@ -17,11 +18,9 @@ class Body extends Component {
     maxResults: 20,
     pageNumber: 1,
     query: '',
-    modalOpen: false
-  }
-
-  toggleModal = () => {
-    this.setState({modalOpen: !this.state.modalOpen})
+    modalOpen: false,
+    currentVideoId: '',
+    currentVideoTitle: ''
   }
 
   getVideos = (results, place) => {
@@ -48,6 +47,31 @@ class Body extends Component {
     })
   }
 
+  nextPage = () => {
+    const { maxResults, query, nextPageToken} = this.state
+    let pageToken = nextPageToken
+    let q = "surfing in " + query
+
+    searchVideos({pageToken, q, maxResults})
+    .then(this.receiveVideos)
+    .then(this.setState({ pageNumber: this.state.pageNumber + 1 }))
+    .then(window.scrollTo(0, 0))
+  }
+
+  lastPage = () => {
+    const { maxResults, query, prevPageToken} = this.state
+    let pageToken = prevPageToken
+    let q = "surfing in " + query
+
+    searchVideos({pageToken, q, maxResults})
+    .then(this.receiveVideos)
+    .then(() => {
+      this.setState({
+        pageNumber: this.state.pageNumber - 1
+      }, window.scrollTo(0, 0))
+    })
+  }
+
   selectPlace = (place) => {
     this.setState({
       query: place,
@@ -60,36 +84,18 @@ class Body extends Component {
       })
   }
 
-  nextPage = () => {
-    const { maxResults, query, nextPageToken} = this.state
-    let pageToken = nextPageToken
-    let q = "surfing in " + query
-
-    searchVideos({pageToken, q, maxResults})
-      .then(this.receiveVideos)
-      .then(this.setState({ pageNumber: this.state.pageNumber + 1 }))
-      .then(window.scrollTo(0, 0))
+  openModal = ({ snippet, id }) => {
+    const { title } = snippet
+    const { videoId } = id
+    this.setState({
+      modalOpen: true,
+      currentVideoId: videoId,
+      currentVideoTitle: title
+    })
   }
 
-  lastPage = () => {
-    const { maxResults, query, prevPageToken} = this.state
-    let pageToken = prevPageToken
-    let q = "surfing in " + query
-
-    searchVideos({pageToken, q, maxResults})
-      .then(this.receiveVideos)
-      .then(() => {
-        this.setState({
-          pageNumber: this.state.pageNumber - 1
-        }, window.scrollTo(0, 0)
-        )
-      })
-    }
-
-  pageAmount = () => {
-    let totalResults = this.state.pageInfo
-    let pageTotal = totalResults/this.state.maxResults
-    return Math.floor(pageTotal)
+  closeModal = () => {
+    this.setState({modalOpen: false})
   }
 
   onSelectMax = event => {
@@ -97,12 +103,23 @@ class Body extends Component {
   }
 
   render(){
-    const {query, videoInfo, pageNumber, prevPageToken, nextPageToken, maxResults, modalOpen} = this.state
+    const {
+      query,
+      videoInfo,
+      pageNumber,
+      prevPageToken,
+      nextPageToken,
+      maxResults,
+      modalOpen,
+      closeModal,
+      currentVideoTitle,
+      currentVideoId
+    } = this.state
     return(
       <div className="container">
         <p>Pick a place to check out the surf videos!</p>
         <Autocomplete
-          className="effect-1"
+          className="autocomplete-effect"
           placeholder="Surf Destination"
           onPlaceSelected={(place) => {
             this.selectPlace(place.name)
@@ -113,13 +130,15 @@ class Body extends Component {
         <button onClick={this.getVideos} disabled={!query}>Submit</button>
         <div className="video-container">
           <div className="preview-container">
-            {videoInfo.map((video, i) => <a onClick={this.toggleModal} key={i}><VideoPreview toggleModal={this.toggleModal} {...video} modalOpen={modalOpen}/></a>)}
+            {videoInfo.map((video, i) =>
+              <div classname="preview-container__preview" onClick={() => this.openModal(video)} key={i}>
+                <VideoPreview {...video}/>
+              </div>
+            )}
           </div>
           {!!videoInfo.length &&
             <div className="btn-container">
                 <button onClick={this.lastPage} disabled={!prevPageToken}>Previous</button>
-                <div className="page-info">
-                  <p>Page: {pageNumber} / {this.pageAmount()}</p>
                   <div className="page-info__select">
                     <p>Videos Per Page:</p>
                     <select value={maxResults} onChange={this.onSelectMax}>
@@ -129,11 +148,11 @@ class Body extends Component {
                       <option value="50">50</option>
                     </select>
                   </div>
-                </div>
                 <button onClick={this.nextPage} disabled={!nextPageToken}>Next</button>
             </div>
           }
         </div>
+        <VideoModal vidUrl={`https://www.youtube.com/embed/${currentVideoId}`} videoTitle={currentVideoTitle} closeModal={this.closeModal} modalOpen={modalOpen}/>
       </div>
     );
   }

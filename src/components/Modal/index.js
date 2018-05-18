@@ -12,7 +12,7 @@ class VideoModal extends Component {
     return (
       <div>
         <Modal onClose={closeModal} open={modalOpen} center>
-          <div className="holds-iframe">
+          <div className="iframe-loader">
             <iframe width="560" height="315" src={vidUrl} frameBorder="0" title={videoTitle} allowFullScreen allow="autoplay; encrypted-media"></iframe>
             <h5>{videoTitle}</h5>
           </div>

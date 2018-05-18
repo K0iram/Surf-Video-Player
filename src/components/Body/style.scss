@@ -9,6 +9,10 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+
+  &__preview {
+    height: 100%;
+  }
 }
 
 .page-info {
@@ -42,7 +46,7 @@
   }
 }
 
-.effect-1 {
+.autocomplete-effect {
   border: 0;
   padding: 7px 0;
   border-bottom: 1px solid #ccc;
