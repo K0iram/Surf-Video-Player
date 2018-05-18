@@ -12,11 +12,9 @@ class Body extends Component {
 
   state = {
     videoInfo: [],
-    pageInfo: [],
     nextPageToken: '',
     prevPageToken: '',
     maxResults: 20,
-    pageNumber: 1,
     query: '',
     modalOpen: false,
     currentVideoId: '',
@@ -28,20 +26,14 @@ class Body extends Component {
     let q = "surfing in " + query
 
     searchVideos({ maxResults, q })
-      .then(this.receiveVideos)
-      .then(
-        this.setState({
-          pageNumber: 1
-        })
-      )
+    .then(this.receiveVideos)
   }
 
   receiveVideos = ({ data }) => {
-    const { nextPageToken, prevPageToken, pageInfo, items } = data
+    const { nextPageToken, prevPageToken, items } = data
 
     this.setState({
       videoInfo: items,
-      pageInfo: pageInfo.totalResults,
       nextPageToken: nextPageToken || null,
       prevPageToken: prevPageToken || null
     })
@@ -54,7 +46,6 @@ class Body extends Component {
 
     searchVideos({pageToken, q, maxResults})
     .then(this.receiveVideos)
-    .then(this.setState({ pageNumber: this.state.pageNumber + 1 }))
     .then(window.scrollTo(0, 0))
   }
 
@@ -65,11 +56,7 @@ class Body extends Component {
 
     searchVideos({pageToken, q, maxResults})
     .then(this.receiveVideos)
-    .then(() => {
-      this.setState({
-        pageNumber: this.state.pageNumber - 1
-      }, window.scrollTo(0, 0))
-    })
+    .then(window.scrollTo(0, 0))
   }
 
   selectPlace = (place) => {
@@ -106,12 +93,10 @@ class Body extends Component {
     const {
       query,
       videoInfo,
-      pageNumber,
       prevPageToken,
       nextPageToken,
       maxResults,
       modalOpen,
-      closeModal,
       currentVideoTitle,
       currentVideoId
     } = this.state

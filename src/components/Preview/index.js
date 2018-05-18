@@ -4,9 +4,8 @@ import React from 'react'
 import './style.css'
 
 
-const VideoPreview  = ({ snippet, id}) => {
+const VideoPreview  = ({ snippet }) => {
   const { title, thumbnails, description } = snippet
-  const { videoId } = id
 
   return (
     <div className="youtube-container">
